@@ -1,0 +1,6 @@
+pandas
+pyarrow
+pyspark
+black
+python-lsp-server[all]
+pytest
