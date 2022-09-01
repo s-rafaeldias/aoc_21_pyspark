@@ -14,13 +14,29 @@ with SparkSession.builder.appName("AOC_Day_01").getOrCreate() as spark:
     df.show()
 
     part_one_df = (
-        df.withColumn(
-            "part_one_list", func.collect_list("col1").over(window)
-        ).withColumn(
+        df.withColumn("part_one_list", func.collect_list("col1").over(window))
+        .withColumn(
             "part_one_result",
-            func.col("part_one_list")[0] > func.col("part_one_list")[1],
+            func.col("part_one_list")[0] < func.col("part_one_list")[1],
         )
         .groupBy("part_one_result")
         .count()
     )
     part_one_df.show()
+
+    window_2 = Window.partitionBy(func.lit(1)).rowsBetween(0, 2)
+    part_two_df = (
+        df.withColumn("list", func.collect_list("col1").over(window_2))
+        .withColumn(
+            "sum",
+            func.aggregate(func.col("list"), func.lit(0), lambda x, acc: x + acc),
+        )
+        .withColumn("list2", func.collect_list("sum").over(window))
+        .withColumn(
+            "result",
+            func.col("list2")[0] < func.col("list2")[1],
+        )
+        .groupBy("result")
+        .count()
+    )
+    part_two_df.show()
